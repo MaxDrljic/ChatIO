@@ -62,6 +62,7 @@
         <div id="namesWrapper">
             <h2>ChatIO</h2>
             <p>Create Username:</p>
+            <div id="error"></div>
             <form id="usernameForm">
                 <input type="text" size="35" id="username" />
                 <input type="submit" value="Submit" />
@@ -92,6 +93,30 @@
             let $messageForm = $('#messageForm');
             let $message = $('#message');
             let $chat = $('#chatWindow');
+            let $usernameForm = $('#usernameForm');
+            let $users = $('#users');
+            let $username = $('#username');
+            let $error = $('#error');
+
+            $usernameForm.submit((e) => {
+                e.preventDefault();
+                socket.emit('new user', $username.val(), (data) => {
+                    if (data) {
+                        $('#namesWrapper').hide();
+                        $('#mainWrapper').show();
+                    } else {
+                        $error.html('Username is taken');
+                    }
+                });
+            });
+
+            socket.on('usernames', (data) => {
+                let html = '';
+                for (i = 0; i < data.length; i++) {
+                    html += data[i] + '<br>';
+                }
+                $users.html(html);
+            });
 
             $messageForm.submit((e) => {
                 e.preventDefault();
@@ -100,7 +125,7 @@
             });
 
             socket.on('new message', (data) => {
-                $chat.append(data.msg + '<br>');
+                $chat.append('<strong>'+ data.user +'</strong>: '+ data.msg +' <br>');
             });
         });
     </script>

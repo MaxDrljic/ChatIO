@@ -25,10 +25,23 @@ io.sockets.on('connection', (socket) => {
         }
     });
 
-    
+    // Update Usernames
+    function updateUsernames() {
+        io.sockets.emit('usernames', usernames);
+    }
 
     // Send Message
     socket.on('send message', (data) => {
-        io.sockets.emit('new message', {msg: data});
+        io.sockets.emit('new message', {msg: data, user: socket.username});
+    });
+
+    // Disconnect
+    socket.on('disconnect', function() {
+        if (!socket.username) {
+            return;
+        }
+
+        usernames.splice(usernames.indexOf(socket.username), 1);
+        updateUsernames();
     });
 });
